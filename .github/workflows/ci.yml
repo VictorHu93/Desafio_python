@@ -32,12 +32,13 @@ jobs:
     - name: Run migrations and tests
       run: |
         echo "Esperando o PostgreSQL inicializar..."
-        sleep 10  # Aguarda 10 segundos antes de verificar o banco de dados
+        sleep 15  # Aumenta o tempo de espera inicial para o PostgreSQL iniciar
         until pg_isready -h db -p 5432 -U livraria_user; do
           echo "Aguardando o banco de dados PostgreSQL..."
-          sleep 1
+          sleep 3  # Aumenta o intervalo entre tentativas de conexão
         done
         python manage.py makemigrations
         python manage.py migrate
         python manage.py test
+
 
