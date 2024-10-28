@@ -5,18 +5,6 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      db:
-        image: postgres:13
-        env:
-          POSTGRES_DB: livraria_db
-          POSTGRES_USER: livraria_user
-          POSTGRES_PASSWORD: senha_livraria
-        options: >-
-          --health-cmd="pg_isready -U livraria_user -d livraria_db"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
     - uses: actions/checkout@v2
@@ -30,17 +18,13 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Wait for PostgreSQL to be ready
+    - name: Configure Django to use SQLite
       run: |
-        until pg_isready -h db -p 5432 -U livraria_user; do
-          echo "Waiting for PostgreSQL..."
-          sleep 5
-        done
-        echo "PostgreSQL is ready!"
+        echo "DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}}" > library/settings_ci.py
 
     - name: Run migrations and tests
       env:
-        DATABASE_URL: postgres://livraria_user:senha_livraria@db:5432/livraria_db
+        DJANGO_SETTINGS_MODULE: library.settings_ci
       run: |
         python manage.py makemigrations
         python manage.py migrate
