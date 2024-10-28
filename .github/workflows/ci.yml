@@ -11,15 +11,16 @@ jobs:
         env:
           POSTGRES_DB: livraria_db
           POSTGRES_USER: livraria_user
-          POSTGRES_PASSWORD: senha_livraria 
+          POSTGRES_PASSWORD: senha_livraria
         options: >-
-          --health-cmd "pg_isready -U livraria_user -d livraria_db"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+          --health-cmd="pg_isready -U livraria_user -d livraria_db"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
@@ -29,16 +30,21 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Run migrations and tests
+    - name: Wait for PostgreSQL to be ready
       run: |
-        echo "Esperando o PostgreSQL inicializar..."
-        sleep 15  # Aumenta o tempo de espera inicial para o PostgreSQL iniciar
         until pg_isready -h db -p 5432 -U livraria_user; do
-          echo "Aguardando o banco de dados PostgreSQL..."
-          sleep 3  # Aumenta o intervalo entre tentativas de conexão
+          echo "Waiting for PostgreSQL..."
+          sleep 5
         done
+        echo "PostgreSQL is ready!"
+
+    - name: Run migrations and tests
+      env:
+        DATABASE_URL: postgres://livraria_user:senha_livraria@db:5432/livraria_db
+      run: |
         python manage.py makemigrations
         python manage.py migrate
-        python manage.py test
+        python manage.py test library.tests
+
 
 
