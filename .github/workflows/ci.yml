@@ -18,17 +18,9 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-    - name: Configure Django to use SQLite
-      run: |
-        echo "DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}}" > library/settings_ci.py
-
     - name: Run migrations and tests
-      env:
-        DJANGO_SETTINGS_MODULE: library.settings_ci
       run: |
         python manage.py makemigrations
         python manage.py migrate
-        python manage.py test library.tests
-
-
+        python manage.py test
 
