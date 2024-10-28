@@ -31,7 +31,8 @@ jobs:
 
     - name: Run migrations and tests
       run: |
-        # Aguarda até o banco de dados estar pronto
+        echo "Esperando o PostgreSQL inicializar..."
+        sleep 10  # Aguarda 10 segundos antes de verificar o banco de dados
         until pg_isready -h db -p 5432 -U livraria_user; do
           echo "Aguardando o banco de dados PostgreSQL..."
           sleep 1
