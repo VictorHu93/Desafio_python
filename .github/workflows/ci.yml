@@ -20,6 +20,7 @@ jobs:
 
     - name: Run migrations and tests
       env:
+        DJANGO_SETTINGS_MODULE: core.settings_ci
         DJANGO_SECRET_KEY: "django-insecure-^wb8f=e)94r&@pomhv4qch-1!@jhax1y^g5a656(@sf&#(z2ki"
       run: |
         python manage.py makemigrations
