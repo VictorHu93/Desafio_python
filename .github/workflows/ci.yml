@@ -1,0 +1,36 @@
+name: Django CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_DB: livraria_db
+          POSTGRES_USER: livraria_user
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}  # Referencia o segredo
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.12.4'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run migrations and tests
+      run: |
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py test
