@@ -7,13 +7,13 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-        image: postgres
+        image: postgres:13
         env:
           POSTGRES_DB: livraria_db
           POSTGRES_USER: livraria_user
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}  # Referencia o segredo
+          POSTGRES_PASSWORD: senha_livraria 
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U livraria_user -d livraria_db"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -31,6 +31,12 @@ jobs:
 
     - name: Run migrations and tests
       run: |
+        # Aguarda até o banco de dados estar pronto
+        until pg_isready -h db -p 5432 -U livraria_user; do
+          echo "Aguardando o banco de dados PostgreSQL..."
+          sleep 1
+        done
         python manage.py makemigrations
         python manage.py migrate
         python manage.py test
+
